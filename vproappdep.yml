@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vproapp
+  labels:
+    app: vproapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vproapp
+  template:
+    metadata:
+      labels:
+        app: vproapp
+    spec:
+      containers:
+      - name: vproapp
+        image: vprofile/vprofileapp:V1
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8080
+          name: vproapp-port
+      initContainers:
+        - name: init-mydb
+          image: busybox
+          command: ['sh', '-c', 'until nslookup vprodb; do echo waiting for vprodb; sleep 2; done;']
+          # volumeMounts:
+          #   - name: vpro-db-data
+          #     mountPath: /var/lib/mysql
+        - name: init-memcache
+          image: busybox
+          command: ['sh', '-c', 'until nslookup vprocache01; do echo waiting for vprodb; sleep 2; done;']
